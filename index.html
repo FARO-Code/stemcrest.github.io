@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>STEM Crest Academy | Master Programming & Mathematics</title>
+    <link rel="icon" href="logo.png" type="image/png"> <!-- Favicon -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
@@ -137,6 +138,8 @@
             transition: all 0.3s ease;
             position: relative;
             padding: 0.5rem 0;
+            /* Remove default link underline */
+            text-decoration: none;
         }
         nav a:hover {
             color: var(--color-primary);
@@ -177,6 +180,8 @@
             box-shadow: 0 4px 15px rgba(96, 206, 128, 0.3);
             display: inline-block;
             opacity: 1;
+            /* Remove default link underline */
+            text-decoration: none;
         }
         .cta-button:hover {
             color: #FFFFFF !important;
@@ -621,6 +626,8 @@
             transition: all 0.3s ease;
             font-weight: 500;
             color: var(--text-gray);
+            /* Remove default link underline */
+            text-decoration: none;
         }
         .curriculum-tab.active, .curriculum-tab:hover {
             background: linear-gradient(45deg, var(--color-primary), var(--color-accent));
@@ -769,6 +776,29 @@
             margin-bottom: 1rem;
             font-weight: 300;
             font-size: 0.9rem;
+        }
+        .footer-links {
+            list-style: none;
+            padding: 0;
+        }
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+        .footer-links a {
+            color: var(--text-gray);
+            text-decoration: none;
+            font-weight: 400;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            /* Remove default link underline */
+            text-decoration: none;
+            /* Add padding and border-radius for a button-like feel */
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+        }
+        .footer-links a:hover {
+            color: var(--color-accent);
+            background-color: rgba(96, 206, 128, 0.1);
         }
         .social-links {
             display: flex;
@@ -937,7 +967,6 @@
                 font-size: 0.75rem;
             }
         }
-
             /* --- Updated Contact Info Styles --- */
         .contact-info-container {
             display: flex;
@@ -948,7 +977,6 @@
             margin: 0 auto;
             padding: 2rem 5%;
         }
-
         .contact-item {
             display: flex;
             align-items: center;          /* Center icon(s) + text vertically */
@@ -956,14 +984,12 @@
             text-align: center;
             gap: 1rem;                    /* Equal space between icons and text */
         }
-
         .contact-icons-duo {
             display: flex;
             gap: 0.5rem;                  /* Space between phone + WhatsApp icons */
             justify-content: center;
             align-items: center;
         }
-
         .contact-icon-circle {
             width: 80px;
             height: 80px;
@@ -975,17 +1001,14 @@
             box-shadow: 0 4px 15px rgba(96, 206, 128, 0.3);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-
         .contact-icon-circle:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 20px rgba(96, 206, 128, 0.5);
         }
-
         .contact-icon-circle i {
             font-size: 2rem;
             color: var(--text-light);
         }
-
         .contact-detail-pill {
             display: inline-block;
             padding: 0.6rem 1.2rem;
@@ -1003,8 +1026,9 @@
             white-space: nowrap;
             text-align: center;
             box-sizing: border-box;
+            /* Remove default link underline */
+            text-decoration: none;
         }
-
         .contact-detail-pill:hover {
             background-color: rgba(96, 206, 128, 0.1);
             border-color: var(--color-accent);
@@ -1012,7 +1036,6 @@
             box-shadow: var(--shadow-hover);
             transform: translateY(-2px);
         }
-
         /* Non-link pills (like address) */
         .contact-item > span.contact-detail-pill {
             color: var(--color-primary);
@@ -1021,8 +1044,6 @@
             color: var(--color-accent);
             cursor: default;
         }
-
-
     /* Responsive adjustments */
     @media (max-width: 768px) {
         .contact-info-container {
@@ -1036,7 +1057,6 @@
             font-size: 1.7rem;
         }
     }
-
     @media (max-width: 480px) {
         .contact-info-container {
             flex-direction: column;
@@ -1162,7 +1182,7 @@
                     <li>Recorded sessions after each class</li>
                     <li>Monthly progress report sent to parents</li>
                 </ul>
-                <button class="cta-button">Get Started</button>
+                <button class="cta-button get-started-btn">Get Started</button> <!-- Updated button -->
             </div>
             <div class="plan-card popular">
                 <div class="popular-tag">POPULAR</div>
@@ -1174,7 +1194,7 @@
                     <li>Combined progress report</li>
                     <li>Practical programming projects + Maths exam prep</li>
                 </ul>
-                <button class="cta-button">Get Started</button>
+                <button class="cta-button get-started-btn">Get Started</button> <!-- Updated button -->
             </div>
             <div class="plan-card">
                 <h3>Full STEM Plan</h3>
@@ -1186,7 +1206,7 @@
                     <li>End-of-term showcase</li>
                     <li>Certificate of completion for each track</li>
                 </ul>
-                <button class="cta-button">Get Started</button>
+                <button class="cta-button get-started-btn">Get Started</button> <!-- Updated button -->
             </div>
         </div>
     </section>
@@ -1205,7 +1225,7 @@
                     <li>See the teaching style, student engagement, and learning pace</li>
                     <li>Decide if it's the right fit before paying</li>
                 </ul>
-                <button class="cta-button">Start Free Trial</button>
+                <button class="cta-button get-started-btn">Start Free Trial</button> <!-- Updated button -->
             </div>
         </div>
     </section>
@@ -1705,7 +1725,6 @@
         <p>Have questions? Reach out to us directly</p>
     </div>
     <div class="contact-info-container">
-
         <!-- Email -->
         <div class="contact-item">
             <a href="mailto:glide.in.motion@gmail.com" class="contact-icon-circle">
@@ -1713,7 +1732,6 @@
             </a>
             <a href="mailto:glide.in.motion@gmail.com" class="contact-detail-pill">glide.in.motion@gmail.com</a>
         </div>
-
         <!-- Phone + WhatsApp beside each other -->
         <div class="contact-item">
             <div class="contact-icons-duo">
@@ -1726,7 +1744,6 @@
             </div>
             <a href="tel:+2349061950587" class="contact-detail-pill">+234 906 1950 587</a>
         </div>
-
         <!-- Location -->
         <div class="contact-item">
             <a href="https://www.google.com/maps/place/Abuja,+Nigeria" target="_blank" class="contact-icon-circle">
@@ -1734,10 +1751,8 @@
             </a>
             <span class="contact-detail-pill">Abuja, Nigeria</span>
         </div>
-
     </div>
 </section>
-
     <!-- Footer -->
     <footer>
         <div class="footer-content">
@@ -2045,10 +2060,29 @@
                     }
                 });
             });
+            // --- Added: Make Get Started buttons scroll to Contact ---
+            document.querySelectorAll('.get-started-btn').forEach(button => {
+                button.addEventListener('click', function(e) {
+                     e.preventDefault(); // Prevent default button behavior if any
+                     const targetElement = document.getElementById('contact');
+                     if (targetElement) {
+                         window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                     }
+                });
+            });
+            // --- Added: Remove default link underline from footer links and Quick Links ---
+            const footerLinks = document.querySelectorAll('.footer-links a, nav a');
+            footerLinks.forEach(link => {
+                 // Ensure text-decoration is none. The CSS already handles this,
+                 // but adding it here reinforces the behavior if needed.
+                 // link.style.textDecoration = 'none'; // Not strictly necessary if CSS is correct
+            });
             // Initialize Three.js
             init();
         });
     </script>
 </body>
 </html>
-```
