@@ -1,0 +1,2054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>STEM Crest Academy | Master Programming & Mathematics</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        :root {
+            --color-primary: #154360; /* deep navy */
+            --color-accent: #60ce80; /* green */
+            --color-bg: #ffffff; /* white */
+            --color-neutral: #f0f0f0; /* light gray */
+            --color-white: #ffffff;
+            --text-dark: #1a1a1a;
+            --text-gray: #666666;
+            --text-light: #ffffff;
+            --border-light: #e0e0e0;
+            --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+        body {
+            background-color: var(--color-bg);
+            color: var(--text-dark);
+            overflow-x: hidden;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            cursor: none; /* Default cursor hidden */
+            padding-top: 80px;
+        }
+        /* Custom Cursor - Hidden on mobile/tablet */
+        @media (pointer: fine) {
+            .cursor {
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                background: var(--color-accent);
+                position: fixed;
+                pointer-events: none;
+                z-index: 9999;
+                mix-blend-mode: difference;
+                transition: all 0.1s ease;
+                transform: translate(-50%, -50%);
+                display: block; /* Show on PC */
+            }
+            .cursor-follower {
+                width: 40px;
+                height: 40px;
+                border: 1px solid var(--color-accent);
+                border-radius: 50%;
+                position: fixed;
+                pointer-events: none;
+                z-index: 9998;
+                transform: translate(-50%, -50%);
+                transition: all 0.1s ease;
+                backdrop-filter: blur(5px);
+                display: block; /* Show on PC */
+            }
+            .cursor-hover {
+                transform: translate(-50%, -50%) scale(2);
+                background: var(--color-accent);
+            }
+            .cursor-follower.cursor-hover {
+                background: rgba(96, 206, 128, 0.3);
+            }
+        }
+        @media (pointer: coarse), (hover: none) {
+            .cursor, .cursor-follower {
+                display: none !important; /* Hide on touch devices */
+            }
+            body {
+                cursor: auto; /* Re-enable default cursor */
+            }
+        }
+        .canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        /* Floating Navigation */
+        header {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 95%;
+            max-width: 1200px;
+            padding: 0.8rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--border-light);
+            border-radius: 50px;
+            box-shadow: var(--shadow-light);
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        header.scrolled {
+            top: 15px;
+            padding: 0.6rem 1.2rem;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: var(--shadow-hover);
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--color-primary), var(--color-accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+        }
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 1.5rem;
+        }
+        nav a {
+            color: var(--text-gray);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+        nav a:hover {
+            color: var(--color-primary);
+        }
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+            transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        nav a:hover::after {
+            width: 100%;
+        }
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-dark);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .cta-button {
+            background: linear-gradient(45deg, var(--color-primary), var(--color-accent));
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
+            color: #FFFFFF !important;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(96, 206, 128, 0.3);
+            display: inline-block;
+            opacity: 1;
+        }
+        .cta-button:hover {
+            color: #FFFFFF !important;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(96, 206, 128, 0.5);
+        }
+        /* Hero Section */
+        .hero {
+            height: 85vh;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 5%;
+            position: relative;
+        }
+        .hero h1 {
+            font-size: clamp(2rem, 8vw, 4rem);
+            font-weight: 800;
+            margin-bottom: 1.2rem;
+            line-height: 1.1;
+            letter-spacing: -1px;
+            background: linear-gradient(45deg, var(--text-dark), var(--color-primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .hero p {
+            font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+            color: var(--text-gray);
+            max-width: 650px;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+        .stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .stat-item {
+            text-align: center;
+            min-width: 120px;
+        }
+        .stat-number {
+            font-size: clamp(2rem, 5vw, 2.8rem);
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--color-primary), var(--color-accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1;
+        }
+        .stat-label {
+            color: var(--text-gray);
+            font-size: clamp(0.7rem, 2vw, 0.9rem);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+        /* Sections */
+        section {
+            padding: 6rem 5%;
+        }
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .section-title h2 {
+            font-size: clamp(1.8rem, 5vw, 2.8rem);
+            font-weight: 800;
+            margin-bottom: 1.2rem;
+            letter-spacing: -0.5px;
+            background: linear-gradient(45deg, var(--text-dark), var(--color-primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .section-title p {
+            color: var(--text-gray);
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            line-height: 1.7;
+            font-weight: 300;
+        }
+        /* Services Grid */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.8rem;
+        }
+        .service-card {
+            background: var(--color-white);
+            border-radius: 20px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-light);
+            position: relative;
+            overflow: hidden;
+        }
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hover);
+            border-color: rgba(96, 206, 128, 0.3);
+        }
+        .service-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, var(--color-primary), var(--color-accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .service-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: -0.2px;
+            color: var(--text-dark);
+        }
+        .service-card p {
+            color: var(--text-gray);
+            line-height: 1.6;
+            font-weight: 300;
+            font-size: 0.95rem;
+        }
+        /* Trainers Grid - Updated to match new content */
+        .trainers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.8rem;
+        }
+        .trainer-card {
+            display: flex;
+            flex-direction: row; /* Keep row layout */
+            align-items: flex-start;
+            background: var(--color-white);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-light);
+        }
+        .trainer-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hover);
+            border-color: rgba(96, 206, 128, 0.3);
+        }
+        .trainer-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 1.5rem;
+            border: 3px solid var(--color-accent);
+        }
+        .trainer-info {
+            padding: 1.5rem 0 1.5rem 0;
+            flex: 1;
+            text-align: left;
+        }
+        .trainer-info h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+        .trainer-info p {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            margin-bottom: 0.8rem;
+            line-height: 1.5;
+        }
+        .trainer-specialty {
+            display: inline-block;
+            background: rgba(96, 206, 128, 0.1);
+            color: var(--color-accent);
+            padding: 0.3rem 0.8rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        /* Membership Plans - Updated */
+        .membership-plans {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.8rem;
+        }
+        .plan-card {
+            background: var(--color-white);
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-light);
+            position: relative;
+            overflow: hidden;
+        }
+        .plan-card.popular {
+            border-color: var(--color-accent);
+            transform: scale(1.03);
+            box-shadow: 0 10px 25px rgba(96, 206, 128, 0.2);
+        }
+        .popular-tag {
+            position: absolute;
+            top: 15px;
+            right: -30px;
+            background: linear-gradient(45deg, var(--color-primary), var(--color-accent));
+            color: white;
+            padding: 0.3rem 2rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            transform: rotate(45deg);
+        }
+        .plan-card h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 1.2rem;
+            color: var(--text-dark);
+        }
+        .price {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1.2rem;
+            color: var(--color-primary);
+        }
+        .price span {
+            font-size: 0.9rem;
+            color: var(--text-gray);
+            font-weight: 300;
+        }
+        .features {
+            list-style: none;
+            margin: 1.5rem 0;
+            text-align: left;
+            padding: 0;
+        }
+        .features li {
+            padding: 0.8rem 0;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            font-weight: 300;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+        }
+        .features li:before {
+            content: '✓';
+            color: var(--color-accent);
+            margin-right: 10px;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        /* Testimonials */
+        .testimonials {
+            background: linear-gradient(135deg, rgba(240, 240, 240, 0.9), rgba(255, 255, 255, 0.9));
+            position: relative;
+            overflow: hidden;
+        }
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.8rem;
+        }
+        .testimonial-card {
+            background: var(--color-white);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-light);
+            transition: all 0.3s ease;
+        }
+        .testimonial-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-hover);
+        }
+        .testimonial-content {
+            font-style: italic;
+            color: var(--text-gray);
+            margin-bottom: 1.2rem;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+        }
+        .author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--color-primary), var(--color-accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.8rem;
+            font-size: 1rem;
+            color: white;
+        }
+        .author-info h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+            color: var(--text-dark);
+        }
+        .author-info p {
+            color: var(--text-gray);
+            font-size: 0.8rem;
+        }
+        /* Facility Tour */
+        .facility-tour {
+            text-align: center;
+        }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        .gallery-item {
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            height: 150px;
+            background: linear-gradient(45deg, var(--color-primary), var(--color-accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            transition: all 0.3s ease;
+            color: white;
+        }
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            border-radius: 15px;
+        }
+        .gallery-item:hover {
+            transform: scale(1.03);
+        }
+        /* Newsletter */
+        .newsletter {
+            background: linear-gradient(135deg, rgba(240, 240, 240, 0.9), rgba(255, 255, 255, 0.9));
+            text-align: center;
+            padding: 5rem 5%;
+        }
+        .newsletter-form {
+            display: flex;
+            max-width: 500px;
+            margin: 0 auto;
+            gap: 0.8rem;
+        }
+        .newsletter-form input {
+            flex: 1;
+            padding: 1rem 1.2rem;
+            background: var(--color-white);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+        }
+        .newsletter-form input:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px rgba(96, 206, 128, 0.1);
+        }
+        /* FAQ Section */
+        .faq {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .faq-item {
+            margin-bottom: 1.2rem;
+            border: 1px solid var(--border-light);
+            border-radius: 15px;
+            overflow: hidden;
+            background: var(--color-white);
+        }
+        .faq-question {
+            padding: 1.2rem 1.5rem;
+            background: var(--color-white);
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95rem;
+            color: var(--text-dark);
+        }
+        .faq-answer {
+            padding: 0 1.5rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background: var(--color-white);
+            color: var(--text-gray);
+        }
+        .faq-answer.open {
+            padding: 1.2rem 1.5rem;
+            max-height: 500px;
+        }
+        .faq-toggle {
+            transition: transform 0.3s ease;
+            color: var(--text-gray);
+        }
+        .faq-toggle.open {
+            transform: rotate(180deg);
+        }
+        /* Curriculum Section */
+        .curriculum {
+            background: linear-gradient(135deg, rgba(240, 240, 240, 0.9), rgba(255, 255, 255, 0.9));
+        }
+        .curriculum-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .curriculum-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .curriculum-tab {
+            padding: 0.8rem 1.5rem;
+            background: var(--color-white);
+            border: 1px solid var(--border-light);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            color: var(--text-gray);
+        }
+        .curriculum-tab.active, .curriculum-tab:hover {
+            background: linear-gradient(45deg, var(--color-primary), var(--color-accent));
+            color: var(--text-light);
+            border-color: transparent;
+        }
+        .curriculum-content {
+            display: none;
+        }
+        .curriculum-content.active {
+            display: block;
+        }
+        .mindmap {
+            background: var(--color-white);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-light);
+            overflow-x: auto;
+        }
+        .mindmap ul {
+            list-style: none;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        .mindmap > ul {
+            padding-left: 0;
+        }
+        .mindmap li {
+            margin: 0.5rem 0;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .mindmap li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.5em;
+            width: 1rem;
+            height: 1px;
+            background: var(--color-accent);
+        }
+        .mindmap li::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1px;
+            height: 100%;
+            background: var(--color-accent);
+        }
+        .mindmap li:last-child::after {
+            height: 0.5em;
+        }
+        .mindmap > ul > li::after {
+            top: 1.5em;
+        }
+        .mindmap > ul > li:last-child::after {
+            height: calc(100% - 1em);
+        }
+        .mindmap li.root {
+            padding-left: 0;
+        }
+        .mindmap li.root::before, .mindmap li.root::after {
+            display: none;
+        }
+        .mindmap .node {
+            font-weight: 600;
+            color: var(--color-primary);
+            padding: 0.2rem 0;
+        }
+        .mindmap .leaf {
+            font-weight: 400;
+            color: var(--text-gray);
+            font-size: 0.95rem;
+        }
+        .mindmap .project {
+            color: var(--color-accent);
+            font-weight: 500;
+        }
+        /* Contact Form */
+        .contact-form {
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--color-white);
+            padding: 2.5rem;
+            border-radius: 20px;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-light);
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.6rem;
+            color: var(--text-gray);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            background: var(--color-white);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px rgba(96, 206, 128, 0.1);
+        }
+        .form-group textarea {
+            height: 140px;
+            resize: vertical;
+        }
+        footer {
+            background: var(--color-white);
+            padding: 3rem 5% 2rem;
+            border-top: 1px solid var(--border-light);
+        }
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+        }
+        .footer-column h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1.2rem;
+            background: linear-gradient(45deg, var(--color-primary), var(--color-accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .footer-column p {
+            color: var(--text-gray);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            font-weight: 300;
+            font-size: 0.9rem;
+        }
+        .social-links {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: var(--color-neutral);
+            color: var(--text-dark);
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+        .social-links a:hover {
+            background: var(--color-accent);
+            color: var(--text-light);
+            transform: translateY(-2px);
+        }
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-light);
+            color: var(--text-gray);
+            font-size: 0.8rem;
+        }
+        /* Responsive Improvements */
+        @media (max-width: 1200px) {
+            .services-grid,
+            .trainers-grid,
+            .membership-plans,
+            .testimonial-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+        }
+        @media (max-width: 992px) {
+            body {
+                padding-top: 70px;
+            }
+            header {
+                padding: 0.7rem 1.2rem;
+            }
+            .hero {
+                height: 80vh;
+                min-height: 450px;
+            }
+            section {
+                padding: 5rem 5%;
+            }
+        }
+        @media (max-width: 768px) {
+            body {
+                padding-top: 60px;
+            }
+            header {
+                width: 95%;
+                padding: 0.6rem 1rem;
+                top: 15px;
+            }
+            header.scrolled {
+                top: 10px;
+            }
+            .logo {
+                font-size: 1.4rem;
+            }
+            nav ul {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: var(--color-white);
+                flex-direction: column;
+                padding: 1rem 0;
+                border-radius: 15px;
+                margin-top: 0.5rem;
+                box-shadow: var(--shadow-hover);
+            }
+            nav ul.show {
+                display: flex;
+            }
+            nav a {
+                padding: 0.8rem 1.5rem;
+                width: 100%;
+                color: var(--text-dark);
+            }
+            .mobile-menu-toggle {
+                display: block;
+            }
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            .hero p {
+                font-size: 1rem;
+            }
+            .stats {
+                gap: 1.5rem;
+            }
+            .stat-item {
+                min-width: 100px;
+            }
+            .section-title h2 {
+                font-size: 2.2rem;
+            }
+            .cta-button {
+                padding: 0.7rem 1.2rem;
+                font-size: 0.85rem;
+            }
+        }
+        @media (max-width: 400px) {
+            .hero {
+                height: 65vh;
+                min-height: 300px;
+            }
+            .stats {
+                gap: 0.8rem;
+            }
+            .stat-item {
+                min-width: 80px;
+            }
+            .service-icon {
+                font-size: 2rem;
+                margin-bottom: 1rem;
+            }
+            .service-card h3,
+            .trainer-info h3,
+            .plan-card h3 {
+                font-size: 1.1rem;
+            }
+            .trainer-image,
+            .blog-image {
+                height: 180px;
+            }
+            .gallery-item {
+                height: 100px;
+            }
+            .contact-form {
+                padding: 1.5rem;
+            }
+            .form-group input,
+            .form-group textarea {
+                padding: 0.8rem 1rem;
+            }
+            .newsletter {
+                padding: 4rem 5%;
+            }
+            .newsletter-form input,
+            .newsletter-form .cta-button {
+                padding: 0.8rem 1rem;
+            }
+            footer {
+                padding: 2rem 5% 1rem;
+            }
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            .copyright {
+                padding-top: 1.5rem;
+                font-size: 0.75rem;
+            }
+        }
+
+            /* --- Updated Contact Info Styles --- */
+        .contact-info-container {
+            display: flex;
+            flex-direction: column;       /* Stack items vertically */
+            align-items: center;          /* Center everything horizontally */
+            gap: 2rem;                    /* Space between items */
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 5%;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;          /* Center icon(s) + text vertically */
+            justify-content: center;      /* Keep everything centered horizontally */
+            text-align: center;
+            gap: 1rem;                    /* Equal space between icons and text */
+        }
+
+        .contact-icons-duo {
+            display: flex;
+            gap: 0.5rem;                  /* Space between phone + WhatsApp icons */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .contact-icon-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--color-primary), var(--color-accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(96, 206, 128, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .contact-icon-circle:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(96, 206, 128, 0.5);
+        }
+
+        .contact-icon-circle i {
+            font-size: 2rem;
+            color: var(--text-light);
+        }
+
+        .contact-detail-pill {
+            display: inline-block;
+            padding: 0.6rem 1.2rem;
+            background-color: var(--color-white);
+            color: var(--color-primary);
+            border: 1px solid var(--border-light);
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-light);
+            width: fit-content;
+            max-width: 100%;
+            white-space: nowrap;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .contact-detail-pill:hover {
+            background-color: rgba(96, 206, 128, 0.1);
+            border-color: var(--color-accent);
+            color: var(--color-accent);
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        /* Non-link pills (like address) */
+        .contact-item > span.contact-detail-pill {
+            color: var(--color-primary);
+        }
+        .contact-item > span.contact-detail-pill:hover {
+            color: var(--color-accent);
+            cursor: default;
+        }
+
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .contact-info-container {
+            gap: 2rem; /* Reduce gap on smaller screens */
+        }
+        .contact-icon-circle {
+            width: 70px;
+            height: 70px;
+        }
+        .contact-icon-circle i {
+            font-size: 1.7rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .contact-info-container {
+            flex-direction: column;
+            align-items: center;
+            gap: 2.5rem;
+        }
+        .contact-item {
+            width: auto; /* Adjust width automatically */
+            max-width: 90%; /* Limit max width on very small screens */
+        }
+        .contact-detail-pill {
+            max-width: 100%; /* Allow full width within .contact-item on small screens */
+            padding: 0.5rem 1rem; /* Slightly reduce padding */
+            font-size: 0.9rem; /* Slightly reduce font size */
+            /* The width: auto; from above will still apply */
+        }
+    }
+    </style>
+</head>
+<body>
+    <!-- Canvas Container for Three.js -->
+    <div class="canvas-container" id="scene"></div>
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-follower" id="follower"></div>
+    <!-- Header -->
+    <header id="navbar">
+        <div class="logo">STEM Crest Academy</div>
+        <nav>
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#services">Programs</a></li>
+                <li><a href="#trainers">Instructors</a></li>
+                <li><a href="#membership">Plans</a></li>
+                <li><a href="#curriculum">Curriculum</a></li>
+                <li><a href="#testimonials">Success</a></li>
+                <li><a href="#faq">FAQ</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+        <button class="mobile-menu-toggle">☰</button>
+        <button class="cta-button">Enroll Now</button>
+    </header>
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <h1>Master Programming & Mathematics</h1>
+        <p>Transform your future with our cutting-edge online courses in computer science and advanced mathematics. Learn from industry experts and academic leaders.</p>
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="students-count">50+</div>
+                <div class="stat-label">Students Impacted</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="courses-count">4</div>
+                <div class="stat-label">Core Learning Tracks</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="success-rate">100%</div>
+                <div class="stat-label">Parent Satisfaction Guarantee</div>
+            </div>
+        </div>
+    </section>
+    <!-- Programs Section -->
+    <section class="services" id="services">
+        <div class="section-title">
+            <h2>Our Learning Programs</h2>
+            <p>Comprehensive curriculum designed to take you from beginner to expert in programming and mathematics</p>
+        </div>
+        <div class="services-grid">
+            <div class="service-card">
+                <i class="fas fa-calculator service-icon"></i>
+                <h3>Mathematics Mastery (School Support)</h3>
+                <p>Personalized lessons based on your child’s current classwork, weaknesses, and exam prep needs (WAEC, JAMB, NECO, IGCSE etc.). Focus on improving grades, confidence, and problem-solving skills.</p>
+            </div>
+            <div class="service-card">
+                <i class="fas fa-code service-icon"></i>
+                <h3>Python Programming</h3>
+                <p>Learn logic, problem-solving, and automation through beginner-friendly coding.</p>
+            </div>
+            <div class="service-card">
+                <i class="fas fa-laptop-code service-icon"></i>
+                <h3>Web Development & UI/UX Design</h3>
+                <p>Build real websites, understand design principles, and create user-friendly experiences.</p>
+            </div>
+            <div class="service-card">
+                <i class="fas fa-bolt service-icon"></i>
+                <h3>JavaScript</h3>
+                <p>Bring websites to life with interactivity, animations, and small apps.</p>
+            </div>
+        </div>
+    </section>
+    <!-- Instructors Section -->
+    <section class="trainers" id="trainers">
+        <div class="section-title">
+            <h2>Our Dedicated Mentor</h2>
+            <p>Learn from experienced professionals committed to your success</p>
+        </div>
+        <div class="trainers-grid">
+            <div class="trainer-card">
+                <img src="https://placehold.co/150x150/154360/ffffff?text=MEDUGU+WALI" alt="Medugu Wali" class="trainer-image">
+                <div class="trainer-info">
+                    <h3>Medugu Wali</h3>
+                    <p>Software Engineer who has mastered Python, C++, C#, HTML, CSS, JavaScript, GSAP, Three.js, and Flutter. Founder of Beacora and Femn, with years of hands-on experience building software and teaching coding. Dedicated to making programming simple and exciting for young learners.</p>
+                    <span class="trainer-specialty">Full Stack Development & Teaching</span>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Membership Plans -->
+    <section class="pricing" id="membership">
+        <div class="section-title">
+            <h2>Affordable Learning Plans</h2>
+            <p>Flexible options to suit your learning goals and budget</p>
+        </div>
+        <div class="membership-plans">
+            <div class="plan-card">
+                <h3>Single Track Plan</h3>
+                <div class="price">₦5,000<span>/month</span></div>
+                <ul class="features">
+                    <li>Choice of Mathematics OR one Programming Track</li>
+                    <li>Weekly live online classes (2–3 sessions)</li>
+                    <li>WhatsApp/Telegram support</li>
+                    <li>Recorded sessions after each class</li>
+                    <li>Monthly progress report sent to parents</li>
+                </ul>
+                <button class="cta-button">Get Started</button>
+            </div>
+            <div class="plan-card popular">
+                <div class="popular-tag">POPULAR</div>
+                <h3>Dual Track Plan</h3>
+                <div class="price">₦9,000<span>/month</span></div>
+                <ul class="features">
+                    <li>Mathematics + One Programming Track</li>
+                    <li>Everything in Single Track Plan</li>
+                    <li>Combined progress report</li>
+                    <li>Practical programming projects + Maths exam prep</li>
+                </ul>
+                <button class="cta-button">Get Started</button>
+            </div>
+            <div class="plan-card">
+                <h3>Full STEM Plan</h3>
+                <div class="price">₦13,000<span>/month</span></div>
+                <ul class="features">
+                    <li>Mathematics + All 3 Programming Tracks</li>
+                    <li>5–6 weekly live sessions</li>
+                    <li>Dedicated mentorship channel</li>
+                    <li>End-of-term showcase</li>
+                    <li>Certificate of completion for each track</li>
+                </ul>
+                <button class="cta-button">Get Started</button>
+            </div>
+        </div>
+    </section>
+    <!-- Trial Option -->
+    <section class="trial" id="trial">
+        <div class="section-title">
+            <h2>Try Before You Buy</h2>
+            <p>Risk-free trial to experience our teaching style</p>
+        </div>
+        <div style="text-align: center;">
+            <div class="plan-card" style="max-width: 500px; margin: 0 auto;">
+                <h3>Trial / Starter Option</h3>
+                <div class="price">FREE<span> (1 Week)</span></div>
+                <ul class="features">
+                    <li>One free class in Maths OR Coding</li>
+                    <li>See the teaching style, student engagement, and learning pace</li>
+                    <li>Decide if it's the right fit before paying</li>
+                </ul>
+                <button class="cta-button">Start Free Trial</button>
+            </div>
+        </div>
+    </section>
+    <!-- Curriculum Section -->
+    <section class="curriculum" id="curriculum">
+        <div class="section-title">
+            <h2>Our Detailed Curriculum</h2>
+            <p>Explore the structured learning path for each of our programming tracks</p>
+        </div>
+        <div class="curriculum-container">
+            <div class="curriculum-tabs">
+                <div class="curriculum-tab active" data-tab="python">Python</div>
+                <div class="curriculum-tab" data-tab="web">Web Dev & UI/UX</div>
+                <div class="curriculum-tab" data-tab="javascript">JavaScript</div>
+            </div>
+            <div class="curriculum-content active" id="python-content">
+                <div class="mindmap">
+                    <ul>
+                        <li class="root">
+                            <span class="node">Python Foundations</span>
+                            <ul>
+                                <li>
+                                    <span class="node">Week 1: Introduction & Setup</span>
+                                    <ul>
+                                        <li class="leaf">What is Python & why it matters</li>
+                                        <li class="leaf">Install Python + IDE setup</li>
+                                        <li class="leaf">Writing first program ("Hello, World!")</li>
+                                        <li class="leaf project">Hands-on: Greetings program</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span class="node">Week 2: Variables & Data Types</span>
+                                    <ul>
+                                        <li class="leaf">Numbers, strings, booleans</li>
+                                        <li class="leaf">Arithmetic & string operations</li>
+                                        <li class="leaf">Type conversion</li>
+                                        <li class="leaf project">Project: Grade calculator</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span class="node">Week 3: Control Flow</span>
+                                    <ul>
+                                        <li class="leaf">If/else statements</li>
+                                        <li class="leaf">Loops (for/while)</li>
+                                        <li class="leaf">Logical operators</li>
+                                        <li class="leaf project">Project: Password checker</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span class="node">Week 4: Functions</span>
+                                    <ul>
+                                        <li class="leaf">Defining functions</li>
+                                        <li class="leaf">Parameters & return values</li>
+                                        <li class="leaf">Local vs global scope</li>
+                                        <li class="leaf project">Project: Simple calculator</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="root">
+                            <span class="node">Intermediate Python</span>
+                            <ul>
+                                <li>
+                                    <span class="node">Week 5: Lists & Tuples</span>
+                                    <ul>
+                                        <li class="leaf">Indexing & slicing</li>
+                                        <li class="leaf">Iteration</li>
+                                        <li class="leaf project">Project: Student list manager</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span class="node">Week 6: Dictionaries & Sets</span>
+                                    <ul>
+                                        <li class="leaf">Key-value pairs</li>
+                                        <li class="leaf">Adding/updating/removing items</li>
+                                        <li class="leaf project">Project: Contact book</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span class="node">Week 7: Error Handling</span>
+                                    <ul>
+                                        <li class="leaf">Common Python errors</li>
+                                        <li class="leaf">Try/except blocks</li>
+                                        <li class="leaf project">Debugging exercise</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span class="node">Week 8: File Handling</span>
+                                    <ul>
+                                        <li class="leaf">Reading & writing files</li>
+                                        <li class="leaf">Simple data storage</li>
+                                        <li class="leaf project">Project: Student records file</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="root">
+                            <span class="node">Applied Python</span>
+                            <ul>
+                                <li>
+                                    <span class="node">Week 9: Object-Oriented Programming</span>
+                                    <ul>
+                                        <li class="leaf">Classes & objects</li>
+                                        <li class="leaf">Methods & attributes</li>
+                                        <li class="leaf project">Project: Bank account simulation</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span class="node">Week 10: Libraries</span>
+                                    <ul>
+                                        <li class="leaf">Math, random, datetime</li>
+                                        <li class="leaf">Intro to matplotlib (data visualization)</li>
+                                        <li class="leaf project">Project: Score graph</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span class="node">Week 11: Mini Projects</span>
+                                    <ul>
+                                        <li class="leaf project">Quiz app</li>
+                                        <li class="leaf project">Rock-paper-scissors game</li>
+                                        <li class="leaf project">Expense tracker</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span class="node">Week 12: Final Project & Showcase</span>
+                                    <ul>
+                                        <li class="leaf project">Option 1: Student grade manager (with files + visualization)</li>
+                                        <li class="leaf project">Option 2: Text-based adventure game</li>
+                                        <li class="leaf project">Presentation day (students show parents)</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="curriculum-content" id="web-content">
+                <div class="mindmap">
+                    <ul>
+                        <li class="root">
+                            <span class="node">Foundations of Web Development</span>
+                            <ul>
+                                <li>
+                                    <span class="node">Week 1: Introduction & Setup</span>
+                                    <ul>
+                                        <li class="leaf">What is the Web? (Frontend vs Backend)</li>
+                                        <li class="leaf">Setting up VS Code & browser tools</li>
+                                        <li class="leaf">HTML basics → structure of a webpage</li>
+                                        <li class="leaf project">Project: “My First Webpage”</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span class="node">Week 2: HTML Deep Dive</span>
+                                    <ul>
+                                        <li class="leaf">Headings, paragraphs, links, images</li>
+                                        <li class="leaf">Lists, tables, forms</li>
+                                        <li class="leaf project">Project: Student profile webpage</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span class="node">Week 3: CSS Styling Basics</span>
+                                    <ul>
+                                        <li class="leaf">Colors, fonts, spacing</li>
+                                        <li class="leaf">Box model & borders</li>
+                                        <li class="leaf">CSS selectors & classes</li>
+                                        <li class="leaf project">Project: Personal webpage with styling</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span class="node">Week 4: CSS Layout & Responsiveness</span>
+                                    <ul>
+                                        <li class="leaf">Flexbox & Grid</li>
+                                        <li class="leaf">Responsive design (mobile-first)</li>
+                                        <li class="leaf">Media queries</li>
+                                        <li class="leaf project">Project: Simple responsive portfolio</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="root">
+                            <span class="node">UI/UX Design Fundamentals</span>
+                            <ul>
+                                <li>
+                                    <span class="node">Week 5: Intro to UI/UX</span>
+                                    <ul>
+                                        <li class="leaf">Difference between UI & UX</li>
+                                        <li class="leaf">User-centered design</li>
+                                        <li class="leaf">Wireframing basics (Figma/Canva)</li>
+                                        <li class="leaf project">Project: Wireframe a simple app idea</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span class="node">Week 6: Visual Design Principles</span>
+                                    <ul>
+                                        <li class="leaf">Color theory & typography</li>
+                                        <li class="leaf">Alignment, spacing, hierarchy</li>
+                                        <li class="leaf">Accessibility (contrast, readability)</li>
+                                        <li class="leaf project">Project: Redesign an existing webpage</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span class="node">Week 7: Prototyping & Feedback</span>
+                                    <ul>
+                                        <li class="leaf">Creating interactive prototypes (Figma basics)</li>
+                                        <li class="leaf">Usability testing with peers</li>
+                                        <li class="leaf project">Project: Prototype a login/sign-up flow</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="root">
+                            <span class="node">Applied Web Development</span>
+                            <ul>
+                                <li>
+                                    <span class="node">Week 8: Advanced CSS & Animations</span>
+                                    <ul>
+                                        <li class="leaf">Pseudo-classes & transitions</li>
+                                        <li class="leaf">Keyframes animations</li>
+                                        <li class="leaf project">Project: Animated landing page</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span class="node">Week 9: Introduction to JavaScript for Web</span>
+                                    <ul>
+                                        <li class="leaf">Adding interactivity to websites</li>
+                                        <li class="leaf">DOM manipulation</li>
+                                        <li class="leaf">Simple event handling (click, hover)</li>
+                                        <li class="leaf project">Project: Interactive to-do list</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span class="node">Week 10: Combining UI/UX + Web Dev</span>
+                                    <ul>
+                                        <li class="leaf">Turning wireframes into code</li>
+                                        <li class="leaf">Component-based design</li>
+                                        <li class="leaf">Practical teamwork → design + build</li>
+                                        <li class="leaf project">Project: Team web app mock-up</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span class="node">Mini & Final Projects</span>
+                                    <ul>
+                                        <li>
+                                            <span class="node">Week 11: Mini Project Week</span>
+                                            <ul>
+                                                <li class="leaf project">Personal portfolio website</li>
+                                                <li class="leaf project">Simple blog layout</li>
+                                                <li class="leaf project">Landing page for a brand/product</li>
+                                            </ul>
+                                        </li>
+                                        <li>
+                                            <span class="node">Week 12: Final Project & Showcase</span>
+                                            <ul>
+                                                <li class="leaf project">Option 1: Full responsive website (portfolio/blog)</li>
+                                                <li class="leaf project">Option 2: Small interactive web app with design system</li>
+                                                <li class="leaf project">Presentation day (students pitch & show parents)</li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="curriculum-content" id="javascript-content">
+                <div class="mindmap">
+                    <ul>
+                        <li class="root">
+                            <span class="node">JavaScript Foundations</span>
+                            <ul>
+                                <li>
+                                    <span class="node">Week 1: Introduction & Setup</span>
+                                    <ul>
+                                        <li class="leaf">What is JavaScript? (why it powers the web)</li>
+                                        <li class="leaf">Setting up VS Code + browser console</li>
+                                        <li class="leaf">Writing first script (console.log)</li>
+                                        <li class="leaf project">Project: “Hello World” webpage script</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span class="node">Week 2: Variables & Data Types</span>
+                                    <ul>
+                                        <li class="leaf">let, const, var</li>
+                                        <li class="leaf">Strings, numbers, booleans</li>
+                                        <li class="leaf">Type conversion</li>
+                                        <li class="leaf project">Project: Simple age calculator</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span class="node">Week 3: Operators & Control Flow</span>
+                                    <ul>
+                                        <li class="leaf">Arithmetic & logical operators</li>
+                                        <li class="leaf">If/else statements</li>
+                                        <li class="leaf">Switch statements</li>
+                                        <li class="leaf project">Project: Grade evaluator</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span class="node">Week 4: Loops & Functions</span>
+                                    <ul>
+                                        <li class="leaf">For, while, do-while loops</li>
+                                        <li class="leaf">Functions & return values</li>
+                                        <li class="leaf project">Project: Multiplication table generator</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="root">
+                            <span class="node">Working with the DOM</span>
+                            <ul>
+                                <li>
+                                    <span class="node">Week 5: DOM Basics</span>
+                                    <ul>
+                                        <li class="leaf">Selecting elements (getElementById, querySelector)</li>
+                                        <li class="leaf">Changing text & styles</li>
+                                        <li class="leaf project">Project: Color changer app</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span class="node">Week 6: Events & Interactivity</span>
+                                    <ul>
+                                        <li class="leaf">Click, hover, input events</li>
+                                        <li class="leaf">Event listeners</li>
+                                        <li class="leaf project">Project: Interactive quiz app</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span class="node">Week 7: Forms & Validation</span>
+                                    <ul>
+                                        <li class="leaf">Handling user input</li>
+                                        <li class="leaf">Basic form validation</li>
+                                        <li class="leaf project">Project: Sign-up form with validation</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="root">
+                            <span class="node">Intermediate JavaScript</span>
+                            <ul>
+                                <li>
+                                    <span class="node">Week 8: Arrays & Objects</span>
+                                    <ul>
+                                        <li class="leaf">Arrays & array methods (map, filter, forEach)</li>
+                                        <li class="leaf">Objects & key-value pairs</li>
+                                        <li class="leaf project">Project: To-do list app</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span class="node">Week 9: Advanced Functions</span>
+                                    <ul>
+                                        <li class="leaf">Arrow functions</li>
+                                        <li class="leaf">Callback functions</li>
+                                        <li class="leaf">Intro to ES6 features</li>
+                                        <li class="leaf project">Project: Random quote generator</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span class="node">Week 10: Asynchronous JavaScript</span>
+                                    <ul>
+                                        <li class="leaf">setTimeout & setInterval</li>
+                                        <li class="leaf">Intro to Fetch API (getting data)</li>
+                                        <li class="leaf project">Project: Weather API fetch app</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span class="node">Mini & Final Projects</span>
+                                    <ul>
+                                        <li>
+                                            <span class="node">Week 11: Mini Project Week</span>
+                                            <ul>
+                                                <li class="leaf project">Rock-paper-scissors game</li>
+                                                <li class="leaf project">Digital clock</li>
+                                                <li class="leaf project">Simple calculator</li>
+                                            </ul>
+                                        </li>
+                                        <li>
+                                            <span class="node">Week 12: Final Project & Showcase</span>
+                                            <ul>
+                                                <li class="leaf project">Option 1: Portfolio website with interactive sections</li>
+                                                <li class="leaf project">Option 2: Small web app (quiz game, weather app, to-do list with local storage)</li>
+                                                <li class="leaf project">Presentation day (students show & explain their app)</li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Parent Feedback -->
+    <section class="testimonials" id="testimonials">
+        <div class="section-title">
+            <h2>Parent Feedback</h2>
+            <p>Hear from parents whose children are thriving with STEM Crest Academy</p>
+        </div>
+        <div class="testimonial-grid">
+            <div class="testimonial-card">
+                <div class="testimonial-content">
+                    "My son went from struggling with fractions to scoring an A in Maths within 2 months."
+                </div>
+                <div class="testimonial-author">
+                    <div class="author-avatar">P1</div>
+                    <div class="author-info">
+                        <h4>Parent</h4>
+                        <p>Parent of STEM Crest Student</p>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-content">
+                    "STEM Crest’s Python sessions made coding fun for my daughter—she even built a mini calculator app."
+                </div>
+                <div class="testimonial-author">
+                    <div class="author-avatar">P2</div>
+                    <div class="author-info">
+                        <h4>Parent</h4>
+                        <p>Parent of STEM Crest Student</p>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-content">
+                    "Affordable and flexible, I love how I can track my child’s progress weekly."
+                </div>
+                <div class="testimonial-author">
+                    <div class="author-avatar">P3</div>
+                    <div class="author-info">
+                        <h4>Guardian</h4>
+                        <p>Guardian of STEM Crest Student</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- FAQ Section -->
+    <section class="faq-section" id="faq">
+        <div class="section-title">
+            <h2>Frequently Asked Questions</h2>
+            <p>Everything you need to know about our programs and learning experience</p>
+        </div>
+        <div class="faq">
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>What prerequisites do I need for your courses?</span>
+                    <i class="fas fa-chevron-down faq-toggle"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Our beginner courses require no prior experience. For intermediate and advanced courses, we recommend basic familiarity with programming concepts or mathematics fundamentals. We offer free preparatory materials to help you get up to speed before starting any course.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>How much time should I expect to spend on coursework each week?</span>
+                    <i class="fas fa-chevron-down faq-toggle"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Most students spend between 5-10 hours per week on coursework, depending on their pace and the specific course. Our flexible scheduling allows you to adjust your study time based on your availability.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Do you offer certificates upon completion?</span>
+                    <i class="fas fa-chevron-down faq-toggle"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Yes, we provide certificates of completion for all courses and programs. These certificates can be shared with potential employers or educational institutions.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Can I switch between plans after enrolling?</span>
+                    <i class="fas fa-chevron-down faq-toggle"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Absolutely. You can upgrade or downgrade your plan at any time. If you upgrade, you'll gain immediate access to the additional features of the higher plan. If you downgrade, you'll retain access to completed coursework and certificates, but lose access to premium features of the higher plan.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>What kind of support do you offer during the courses?</span>
+                    <i class="fas fa-chevron-down faq-toggle"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>We offer support through WhatsApp / Telegram group for class support, weekly live classes with recordings, and progress reports to parents. Optional 1-on-1 mentorship will be available as a paid add-on in the future.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+<!-- Contact Info Section - Updated -->
+<section class="contact" id="contact">
+    <div class="section-title">
+        <h2>Get in Touch</h2>
+        <p>Have questions? Reach out to us directly</p>
+    </div>
+    <div class="contact-info-container">
+
+        <!-- Email -->
+        <div class="contact-item">
+            <a href="mailto:glide.in.motion@gmail.com" class="contact-icon-circle">
+                <i class="fas fa-envelope"></i>
+            </a>
+            <a href="mailto:glide.in.motion@gmail.com" class="contact-detail-pill">glide.in.motion@gmail.com</a>
+        </div>
+
+        <!-- Phone + WhatsApp beside each other -->
+        <div class="contact-item">
+            <div class="contact-icons-duo">
+                <a href="tel:+2349061950587" class="contact-icon-circle">
+                    <i class="fas fa-phone"></i>
+                </a>
+                <a href="https://wa.me/2349061950587" target="_blank" class="contact-icon-circle">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+            </div>
+            <a href="tel:+2349061950587" class="contact-detail-pill">+234 906 1950 587</a>
+        </div>
+
+        <!-- Location -->
+        <div class="contact-item">
+            <a href="https://www.google.com/maps/place/Abuja,+Nigeria" target="_blank" class="contact-icon-circle">
+                <i class="fas fa-map-marker-alt"></i>
+            </a>
+            <span class="contact-detail-pill">Abuja, Nigeria</span>
+        </div>
+
+    </div>
+</section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>STEM Crest Academy</h3>
+                <p>Empowering young learners to thrive in mathematics and technology.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#services">Programs</a></li>
+                    <li><a href="#trainers">Instructors</a></li>
+                    <li><a href="#membership">Plans</a></li>
+                    <li><a href="#curriculum">Curriculum</a></li>
+                    <li><a href="#testimonials">Parent Feedback</a></li>
+                    <li><a href="#faq">FAQ</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Programs</h3>
+                <ul class="footer-links">
+                    <li><a href="#">Mathematics Mastery (School Support)</a></li>
+                    <li><a href="#">Python Programming</a></li>
+                    <li><a href="#">Web Development & UI/UX Design</a></li>
+                    <li><a href="#">JavaScript</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Contact Info</h3>
+                <p>glide.in.motion@gmail.com</p>
+                <p>+234 906 1950 587</p>
+                <p>Abuja, Nigeria</p>
+            </div>
+        </div>
+        <div class="copyright">
+            &copy; 2025 STEM Crest Academy. All rights reserved.
+        </div>
+    </footer>
+    <script>
+        // Custom Cursor
+        const cursor = document.getElementById('cursor');
+        const follower = document.getElementById('follower');
+        if (cursor && follower) { // Check if elements exist (e.g., on PC)
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+                setTimeout(() => {
+                    follower.style.left = e.clientX + 'px';
+                    follower.style.top = e.clientY + 'px';
+                }, 20);
+            });
+            document.querySelectorAll('a, button, .service-card, .trainer-card, .plan-card, .testimonial-card, .faq-question, .curriculum-tab').forEach(link => {
+                link.addEventListener('mouseenter', () => {
+                    cursor.classList.add('cursor-hover');
+                    follower.classList.add('cursor-hover');
+                });
+                link.addEventListener('mouseleave', () => {
+                    cursor.classList.remove('cursor-hover');
+                    follower.classList.remove('cursor-hover');
+                });
+            });
+        }
+        // Navbar scroll effect
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+        // Mobile menu toggle
+        const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+        const navMenu = document.querySelector('nav ul');
+        mobileMenuToggle.addEventListener('click', () => {
+            navMenu.classList.toggle('show');
+        });
+        // FAQ Accordion
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const answer = question.nextElementSibling;
+                const toggle = question.querySelector('.faq-toggle');
+                answer.classList.toggle('open');
+                toggle.classList.toggle('open');
+            });
+        });
+        // Curriculum Tabs
+        const tabs = document.querySelectorAll('.curriculum-tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and content
+                document.querySelectorAll('.curriculum-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.curriculum-content').forEach(c => c.classList.remove('active'));
+                // Add active class to clicked tab
+                tab.classList.add('active');
+                // Show corresponding content
+                const tabId = tab.getAttribute('data-tab');
+                document.getElementById(`${tabId}-content`).classList.add('active');
+            });
+        });
+        // Initialize Three.js scene with wave effect
+        let scene, camera, renderer, particles, positions, time = 0;
+        function init() {
+            // Create scene
+            scene = new THREE.Scene();
+            // Create camera
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 5;
+            // Create renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            document.getElementById('scene').appendChild(renderer.domElement);
+            // Create particles
+            const particleCount = 1000;
+            const geometry = new THREE.BufferGeometry();
+            positions = new Float32Array(particleCount * 3);
+            const colors = new Float32Array(particleCount * 3);
+            // Initialize positions in a diagonal line from top-left
+            for (let i = 0; i < particleCount; i++) {
+                const idx = i * 3;
+                // Start positions along a diagonal line (from top-left corner area)
+                positions[idx] = (Math.random() - 0.5) * 5 - 10; // X: Start further left
+                positions[idx + 1] = (Math.random() - 0.5) * 5 + 10; // Y: Start further up
+                positions[idx + 2] = (Math.random() - 0.5) * 2; // Z: Some depth variation
+                // Colors (matching theme)
+                colors[idx] = Math.random() * 0.2 + 0.08; // Dark blue-ish
+                colors[idx + 1] = Math.random() * 0.4 + 0.25; // Green-ish
+                colors[idx + 2] = Math.random() * 0.2 + 0.35; // Light blue-ish
+            }
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            const material = new THREE.PointsMaterial({
+                size: 0.05,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.7
+            });
+            particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+            // Handle window resize
+            window.addEventListener('resize', onWindowResize, false);
+            // Start animation
+            animate();
+        }
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        }
+        function animate() {
+            requestAnimationFrame(animate);
+            time += 0.01; // Increment time for wave effect
+            // Update particle positions to create a wave flowing diagonally down
+            const positionsAttr = particles.geometry.attributes.position;
+            const array = positionsAttr.array;
+            for (let i = 0; i < array.length; i += 3) {
+                // Move particles diagonally (X increases, Y decreases)
+                array[i] += 0.005; // Move right
+                array[i + 1] -= 0.005; // Move down
+                // Apply a sine wave offset to Y based on X position and time for a flowing effect
+                const waveOffset = Math.sin(array[i] * 0.5 + time) * 0.05;
+                array[i + 1] += waveOffset;
+                // Reset particles that have moved off-screen
+                if (array[i] > 15 || array[i + 1] < -15) {
+                    array[i] = (Math.random() - 0.5) * 5 - 10; // Reset X
+                    array[i + 1] = (Math.random() - 0.5) * 5 + 10; // Reset Y
+                    array[i + 2] = (Math.random() - 0.5) * 2; // Reset Z
+                }
+            }
+            positionsAttr.needsUpdate = true; // Important: Notify Three.js that positions have changed
+            renderer.render(scene, camera);
+        }
+        // Initialize GSAP animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hero section animations
+            gsap.from('.hero h1', {
+                duration: 1,
+                y: 30,
+                opacity: 0,
+                ease: 'power3.out'
+            });
+            gsap.from('.hero p', {
+                duration: 1,
+                y: 20,
+                opacity: 0,
+                ease: 'power3.out',
+                delay: 0.2
+            });
+            gsap.to('.cta-button', {
+                duration: 1,
+                y: 0,
+                opacity: 1,
+                ease: 'power3.out',
+                delay: 0.4,
+                stagger: 0.1
+            });
+            gsap.from('.stats', {
+                duration: 1,
+                y: 20,
+                opacity: 0,
+                ease: 'power3.out',
+                delay: 0.6
+            });
+            // Animate counters
+            const counters = document.querySelectorAll('.stat-number');
+            counters.forEach(counter => {
+                const target = counter.getAttribute('id');
+                let count = 0;
+                let targetValue;
+                switch(target) {
+                    case 'students-count':
+                        targetValue = 50;
+                        break;
+                    case 'courses-count':
+                        targetValue = 4;
+                        break;
+                    case 'success-rate':
+                        targetValue = 100;
+                        break;
+                }
+                const increment = targetValue / 100;
+                const interval = setInterval(() => {
+                    count += increment;
+                    if (count >= targetValue) {
+                        clearInterval(interval);
+                        counter.textContent = targetValue + (target === 'students-count' ? '+' : '%');
+                    } else {
+                        counter.textContent = Math.ceil(count) + (target === 'students-count' ? '+' : '%');
+                    }
+                }, 20);
+            });
+            // Scroll animations
+            gsap.registerPlugin(ScrollTrigger);
+            gsap.utils.toArray('section').forEach(section => {
+                gsap.from(section.querySelectorAll('.section-title'), {
+                    scrollTrigger: {
+                        trigger: section,
+                        start: 'top 85%',
+                        toggleActions: 'play none none reverse'
+                    },
+                    duration: 0.8,
+                    y: 20,
+                    opacity: 0,
+                    ease: 'power3.out'
+                });
+                gsap.from(section.querySelectorAll('.services-grid, .trainers-grid, .membership-plans, .contact-form, .testimonial-grid, .gallery-grid, .newsletter-form, .faq, .curriculum-container'), {
+                    scrollTrigger: {
+                        trigger: section,
+                        start: 'top 80%',
+                        toggleActions: 'play none none reverse'
+                    },
+                    duration: 0.8,
+                    y: 30,
+                    opacity: 0,
+                    stagger: 0.1,
+                    ease: 'power3.out',
+                    delay: 0.1
+                });
+            });
+            // Service card hover effects
+            document.querySelectorAll('.service-card, .trainer-card, .plan-card, .testimonial-card').forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    gsap.to(card, {
+                        duration: 0.3,
+                        y: -8,
+                        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
+                        ease: 'power2.out'
+                    });
+                });
+                card.addEventListener('mouseleave', () => {
+                    gsap.to(card, {
+                        duration: 0.3,
+                        y: 0,
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+                        ease: 'power2.out'
+                    });
+                });
+            });
+            // Smooth scrolling for navigation
+            document.querySelectorAll('nav a').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) { // Check if element exists
+                         window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                        // Close mobile menu if open
+                        if (navMenu && navMenu.classList.contains('show')) {
+                            navMenu.classList.remove('show');
+                        }
+                    }
+                });
+            });
+            // Initialize Three.js
+            init();
+        });
+    </script>
+</body>
+</html>
+```
